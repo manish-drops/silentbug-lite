@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "sdks": [
+    {
+      "name": "anthropic",
+      "language": "python",
+      "imports": [
+        "anthropic"
+      ],
+      "calls": [
+        "messages.create",
+        "messages.stream",
+        "messages.parse",
+        "beta.messages.create"
+      ],
+      "clients": [
+        "Anthropic",
+        "AnthropicBedrock",
+        "AnthropicVertex",
+        "AsyncAnthropic",
+        "AsyncAnthropicBedrock",
+        "AsyncAnthropicVertex"
+      ]
+    },
+    {
+      "name": "openai",
+      "language": "python",
+      "imports": [
+        "openai"
+      ],
+      "calls": [
+        "chat.completions.create",
+        "chat.completions.parse",
+        "beta.chat.completions.parse",
+        "responses.create",
+        "responses.parse",
+        "completions.create"
+      ],
+      "clients": [
+        "OpenAI",
+        "AzureOpenAI",
+        "AsyncOpenAI",
+        "AsyncAzureOpenAI"
+      ]
+    },
+    {
+      "name": "ollama",
+      "language": "python",
+      "imports": [
+        "ollama"
+      ],
+      "calls": [
+        "chat",
+        "generate"
+      ],
+      "module_calls": true,
+      "clients": [
+        "Client",
+        "AsyncClient"
+      ]
+    },
+    {
+      "name": "litellm",
+      "language": "python",
+      "imports": [
+        "litellm"
+      ],
+      "calls": [
+        "completion",
+        "acompletion"
+      ],
+      "module_calls": true
+    },
+    {
+      "name": "google-genai",
+      "language": "python",
+      "imports": [
+        "google.genai",
+        "google.generativeai",
+        "google"
+      ],
+      "calls": [
+        "models.generate_content",
+        "models.generate_content_stream",
+        "generate_content",
+        "aio.models.generate_content"
+      ],
+      "clients": [
+        "Client",
+        "GenerativeModel"
+      ]
+    },
+    {
+      "name": "langchain",
+      "language": "python",
+      "imports": [
+        "langchain",
+        "langchain_openai",
+        "langchain_anthropic",
+        "langchain_community",
+        "langchain_ollama",
+        "langchain_google_genai",
+        "langchain_core"
+      ],
+      "calls": [
+        "invoke",
+        "ainvoke",
+        "stream",
+        "astream",
+        "batch",
+        "abatch"
+      ],
+      "receiver_constructors": [
+        "ChatOpenAI",
+        "AzureChatOpenAI",
+        "ChatAnthropic",
+        "ChatOllama",
+        "ChatGoogleGenerativeAI",
+        "ChatLiteLLM",
+        "ChatVertexAI"
+      ]
+    },
+    {
+      "name": "@anthropic-ai/sdk",
+      "language": "javascript",
+      "imports": [
+        "@anthropic-ai/sdk"
+      ],
+      "calls": [
+        "messages.create",
+        "messages.stream",
+        "beta.messages.create"
+      ],
+      "clients": [
+        "Anthropic"
+      ]
+    },
+    {
+      "name": "openai",
+      "language": "javascript",
+      "imports": [
+        "openai"
+      ],
+      "calls": [
+        "chat.completions.create",
+        "chat.completions.parse",
+        "responses.create",
+        "completions.create"
+      ],
+      "clients": [
+        "OpenAI",
+        "AzureOpenAI"
+      ]
+    },
+    {
+      "name": "ollama",
+      "language": "javascript",
+      "imports": [
+        "ollama",
+        "ollama/browser"
+      ],
+      "calls": [
+        "chat",
+        "generate"
+      ],
+      "module_calls": true,
+      "clients": [
+        "Ollama"
+      ]
+    },
+    {
+      "name": "ai",
+      "language": "javascript",
+      "imports": [
+        "ai"
+      ],
+      "calls": [
+        "generateText",
+        "streamText",
+        "generateObject",
+        "streamObject"
+      ],
+      "module_calls": true
+    },
+    {
+      "name": "langchain",
+      "language": "javascript",
+      "imports": [
+        "@langchain/openai",
+        "@langchain/anthropic",
+        "@langchain/ollama",
+        "@langchain/google-genai",
+        "@langchain/core",
+        "langchain"
+      ],
+      "calls": [
+        "invoke",
+        "stream",
+        "batch"
+      ],
+      "receiver_constructors": [
+        "ChatOpenAI",
+        "AzureChatOpenAI",
+        "ChatAnthropic",
+        "ChatOllama",
+        "ChatGoogleGenerativeAI"
+      ]
+    },
+    {
+      "name": "@google/genai",
+      "language": "javascript",
+      "imports": [
+        "@google/genai"
+      ],
+      "calls": [
+        "models.generateContent",
+        "models.generateContentStream"
+      ],
+      "clients": [
+        "GoogleGenAI"
+      ]
+    }
+  ]
+}

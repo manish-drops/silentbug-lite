@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Tools
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Reports written by local runs
+*.sarif
+silentbug-lite.json
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store

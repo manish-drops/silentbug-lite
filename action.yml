@@ -1,0 +1,102 @@
+name: silentbug-lite
+description: >-
+  Five checks for bugs tests and linters miss in Python and JavaScript/TypeScript: errors that
+  still return success, SQL injection, secrets in code, routes with no login check and LLM calls
+  in loops.
+branding:
+  icon: shield
+  color: blue
+
+inputs:
+  path:
+    description: Folder to check, relative to the repository root.
+    default: "."
+  fail-on:
+    description: Fail the job on findings at or above this severity (critical, high, medium, low or none).
+    default: high
+  exclude:
+    description: Paths to skip, as glob patterns relative to the folder, separated by spaces or new lines (for example tests/*).
+    default: ""
+  sarif-file:
+    description: Where to write the SARIF report. Empty means a file in the runner's temp folder.
+    default: ""
+  upload-sarif:
+    description: >-
+      Upload the SARIF report to GitHub code scanning. Needs `security-events: write` and code
+      scanning available on the repository (public repositories have it).
+    default: "false"
+  python-version:
+    description: Python used to run the checks. It is installed apart from your job's own Python.
+    default: "3.12"
+
+outputs:
+  findings:
+    description: Number of findings.
+    value: ${{ steps.scan.outputs.findings }}
+  sarif-file:
+    description: Path of the SARIF report.
+    value: ${{ steps.scan.outputs.sarif-file }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      id: python
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ inputs.python-version }}
+        update-environment: false
+
+    - name: Install silentbug-lite
+      shell: bash
+      env:
+        PYTHON: ${{ steps.python.outputs.python-path }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        venv="$RUNNER_TEMP/silentbug-lite-venv"
+        "$PYTHON" -m venv "$venv"
+        if [ -x "$venv/bin/python" ]; then py="$venv/bin/python"; else py="$venv/Scripts/python.exe"; fi
+        "$py" -m pip install --quiet --disable-pip-version-check "$ACTION_PATH"
+        echo "SILENTBUG_LITE_PYTHON=$py" >> "$GITHUB_ENV"
+
+    - name: Run the checks
+      id: scan
+      shell: bash
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_EXCLUDE: ${{ inputs.exclude }}
+        INPUT_SARIF_FILE: ${{ inputs.sarif-file }}
+      run: |
+        sarif="${INPUT_SARIF_FILE:-$RUNNER_TEMP/silentbug-lite.sarif}"
+        args=("$INPUT_PATH" --fail-on "$INPUT_FAIL_ON" --format sarif --output "$sarif" --no-color)
+        set -f  # keep glob patterns as they are
+        for pattern in $INPUT_EXCLUDE; do args+=(--exclude "$pattern"); done
+        set +f
+        set +e
+        "$SILENTBUG_LITE_PYTHON" -m silentbug_lite "${args[@]}"
+        code=$?
+        set -e
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+        if [ -f "$sarif" ]; then
+          echo "sarif-file=$sarif" >> "$GITHUB_OUTPUT"
+          count=$("$SILENTBUG_LITE_PYTHON" -c 'import json, sys; print(len(json.load(open(sys.argv[1]))["runs"][0]["results"]))' "$sarif")
+          echo "findings=$count" >> "$GITHUB_OUTPUT"
+        fi
+
+    # Skipped on pull requests from forks: their token can't write security events.
+    - name: Upload to code scanning
+      if: >-
+        always() && inputs.upload-sarif == 'true' && steps.scan.outputs.sarif-file != '' &&
+        !(github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name != github.repository)
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: ${{ steps.scan.outputs.sarif-file }}
+        category: silentbug-lite
+
+    - name: Result
+      shell: bash
+      env:
+        CODE: ${{ steps.scan.outputs.exit-code }}
+      run: exit "${CODE:-3}"

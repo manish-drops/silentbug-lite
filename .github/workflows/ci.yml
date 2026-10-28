@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install ".[dev]"
+      - run: ruff check .
+      - run: pytest -q
+
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run the Action on the demo project
+        id: demo
+        uses: ./
+        with:
+          path: examples/demo
+          fail-on: none
+      - name: It finds the planted bugs
+        env:
+          FINDINGS: ${{ steps.demo.outputs.findings }}
+        run: test "$FINDINGS" = "7"
+      - name: Run the Action on this repository
+        uses: ./
+        with:
+          exclude: examples/*
